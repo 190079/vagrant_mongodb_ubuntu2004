@@ -1,31 +1,26 @@
 #!/bin/bash
-function install_upgrade()
-{
-    sudo apt-get update
-    sudo apt-get upgrade -y 
+function update(){
+	echo "####################### Upgrading repo #################"
+	sudo apt update;
+	sudo apt upgrade -y;
 }
-function install_mongo(){
-    echo "############# Installing mongo repo#########"
-    wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-    sudo apt-get install gnupg -y
-    wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-    echo "###################Adding repo ##############"
-    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
-    echo "############# mongo install #########"
-    install_upgrade
-    sudo apt -y install mongodb-org
-    echo "mongodb-org hold" | sudo dpkg --set-selections
-    echo "mongodb-org-database hold" | sudo dpkg --set-selections
-    echo "mongodb-org-server hold" | sudo dpkg --set-selections
-    echo "mongodb-org-shell hold" | sudo dpkg --set-selections
-    echo "mongodb-org-mongos hold" | sudo dpkg --set-selections
-    echo "mongodb-org-tools hold" | sudo dpkg --set-selections
-    echo "############# Starting mongodb #########"
-    sudo systemctl enable --now mongod
+
+function adding_keys(){
+	echo "####################### Adding repo keys #################"
+	wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -;
+	echo "####################### Installing gnupg #################";
+	sudo apt install wget gnupg -y;
+	echo "####################### Adding MongoDB list #################"
+	echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+	update
 }
-echo "############# Installing Updates#########"
-install_upgrade
-sudo apt install wget git -y
-echo "############# Installing mongodb#########"
-install_mongo
-sudo systemctl restart mongod
+function install_mongodb(){
+	echo "####################### Installing MongoDB #################"
+	sudo apt-get install -y mongodb-org=5.0.2 mongodb-org-database=5.0.2 mongodb-org-server=5.0.2 mongodb-org-shell=5.0.2 mongodb-org-mongos=5.0.2 mongodb-org-tools=5.0.2
+	echo "####################### Starting MongoDB Service #################"
+	sudo systemctl enable --now mongod;
+}
+
+update
+adding_keys
+install_mongodb
